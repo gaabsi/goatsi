@@ -21,7 +21,7 @@ La premiere étape est de récuperer ce paquet :
 
 ```bash
 pip install # Si tu utilises pip
-uvx add # Si tu utilises uv
+uv tool add # Si tu utilises uv
 ```
 
 Ça y est, le plus dur est fait maintenant on peut s'amuser ! 
