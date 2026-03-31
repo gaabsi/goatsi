@@ -17,3 +17,6 @@ dependencies = [
 
 [project.scripts]
 goatsi = "goatsi.cli:cli"
+
+[tool.setuptools.package-data]
+goatsi = ["src/defaults.json"]

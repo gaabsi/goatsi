@@ -1,0 +1,24 @@
+{
+  "xgboost": {
+    "seed": 77,
+    "train_size": 0.8,
+    "n_iter": 20,
+    "cv_n_splits": 5,
+    "optimize_on": "roc_auc",
+    "log": ["roc_auc", "accuracy", "precision", "recall", "f1", "average_precision"],
+    "enable_categorical": true,
+    "tree_method": "hist",
+    "threads": -1,
+    "param_grid": {
+      "n_estimators": [50, 500],
+      "learning_rate": [0.01, 0.3],
+      "max_depth": [3, 10],
+      "min_child_weight" : [1, 10],
+      "subsample" : [0.4, 0.8],
+      "colsample_bytree" : [0.4, 0.6],
+      "gamma" : [0.0, 1.0],
+      "reg_alpha" : [0.0, 10.0],
+      "reg_lambda" : [0.0, 10.0]
+    }
+  }
+}

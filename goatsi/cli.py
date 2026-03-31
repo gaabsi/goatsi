@@ -3,6 +3,7 @@ from pathlib import Path
 
 import click
 
+from goatsi.commands.fit import Modelisation
 from goatsi.commands.split import Ingestion
 
 
@@ -16,13 +17,13 @@ def cli():
 @click.option(
     "-target",
     default=None,
-    help="Colonne cible. Active la stratification automatiquement.",
+    help="Target column. Enables stratification automatically.",
 )
 @click.option(
-    "-train-size", default=0.8, show_default=True, help="Proportion du train set."
+    "-train-size", default=0.8, show_default=True, help="Train set proportion."
 )
 @click.option(
-    "-usecols", default=None, help="Colonnes à garder, ex: \"['col1', 'col2']\"."
+    "-usecols", default=None, help="Columns to keep, ex: \"['col1', 'col2']\"."
 )
 def split(filepath, target, train_size, usecols):
     """
@@ -34,7 +35,7 @@ def split(filepath, target, train_size, usecols):
             usecols = ast.literal_eval(usecols)
         except (ValueError, SyntaxError):
             raise click.BadParameter(
-                "Format attendu : \"['col1', 'col2']\"", param_hint="--usecols"
+                "Expected format: \"['col1', 'col2']\"", param_hint="--usecols"
             )
 
     Ingestion(
@@ -43,4 +44,25 @@ def split(filepath, target, train_size, usecols):
         train_size=train_size,
         stratified=target is not None,
         usecols=usecols,
+    ).run()
+
+
+@cli.command()
+@click.argument("train_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--target", "-t", required=True, help="Target column.")
+@click.option(
+    "--positive-class",
+    "-p",
+    default=None,
+    help="Positive class value (ex: 'Yes').",
+)
+def fit(train_path, target, positive_class):
+    """
+    Entraîne un modèle XGBoost sur le train set.
+    """
+
+    Modelisation(
+        train_path=train_path,
+        target=target,
+        positive_class=positive_class,
     ).run()

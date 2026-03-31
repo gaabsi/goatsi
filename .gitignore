@@ -9,3 +9,9 @@ __pycache__/
 # Build
 dist/
 build/
+
+# Linters
+.ruff_cache/
+
+# OS
+.DS_Store
