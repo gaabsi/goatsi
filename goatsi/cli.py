@@ -17,6 +17,7 @@ def cli():
 @click.argument("filepath", type=click.Path(exists=True, path_type=Path))
 @click.option(
     "-target",
+    "-t",
     default=None,
     help="Target column. Enables stratification automatically.",
 )
@@ -50,9 +51,9 @@ def split(filepath, target, train_size, usecols):
 
 @cli.command()
 @click.argument("train_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--target", "-t", required=True, help="Target column.")
+@click.option("-target", "-t", required=True, help="Target column.")
 @click.option(
-    "--positive-class",
+    "-positive-class",
     "-p",
     default=None,
     help="Positive class value (ex: 'Yes').",
@@ -72,9 +73,9 @@ def fit(train_path, target, positive_class):
 @cli.command()
 @click.argument("model_path", type=click.Path(exists=True, path_type=Path))
 @click.argument("test_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--target", "-t", required=True, help="Target column.")
+@click.option("-target", "-t", required=True, help="Target column.")
 @click.option(
-    "--positive-class",
+    "-positive-class",
     "-p",
     default=None,
     help="Positive class value (ex: 'Yes'). Required if target is categorical.",
