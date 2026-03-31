@@ -30,8 +30,8 @@ Les 2 jeux seront écrits dans le même répertoire que je jeu de données paren
 
 Comment s'utilise ce module ? 
 
-```bash 
-goatsi split -filepath --train_size --target --usecol 
+```bash
+goatsi split <filepath> [-target <col>] [-train-size 0.8] [-usecols "['col1', 'col2']"]
 ```
 
 Explication : 
@@ -62,8 +62,8 @@ Et le plus magique dans tout ça ?
 Tout se passe sous le capot, toi tu vois une jolie barre de progression qui va plus ou moins vite selon les performances de ta machine et tu récupères un model tout beau tout propre et optimisé ! C'est pas génial ça ? (si)  
 
 Comment on lance le fit ? c'est tout simple 
-```bash 
-goatsi fit -trainpath -target -positiveclass
+```bash
+goatsi fit <train_path> -target <col> [-p <positive_class>]
 ```
 
 Explication : 
@@ -78,8 +78,8 @@ Ce module là sert à évaluer ton modèle, les métriques classiques de l'éval
 Tu vois aussi les distributions de probabilité, les courbes de performances ... le but ici est de voir en un clin d'oeil si le modèle semble bon pour ta tâche ou pas. 
 
 Comment évaluer ton modèle ? 
-```bash 
-goatsi eval -modelepath -testsetpath -target --positiveclass
+```bash
+goatsi eval <model_path> <test_path> -target <col> [-p <positive_class>]
 ```
 
 Explication : 
