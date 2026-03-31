@@ -1,19 +1,14 @@
 # goatsi
 
 ## Description
-Une seule promesse : **Occupez-vous de réunir les données, je vous offre le modèle quelques minutes (le temps de calculer)**.  
-Goatsi est un wrapper qui permet d'enlever la barrière du code et des connaissances en Machine Learning à la production d'un modèle.  
 
-Vous avez un excel, un csv ou tout autre jeu de données qui sert à décrire une relation ?  
-Avec Goatsi en 2 lignes de commande dans votre terminal vous avez un modèle tout prêt.  
-D'humeur avanturière ? Avec 2 commandes de plus vous aurez un rapport personnalisé sur les performances et comment fonctionne votre modèle.  
+Ce module s'adresse à des techniciens de la data et leur permet de livrer en seulement quelques minutes un premier jet de modèle optimisé par rapport a leur jeu de données sans avoir à écrire une ligne de code.  
+En seulement quelques lignes de commandes, toutes les étapes de la pipeline classique de machine learning (i.e split, training, evaluation, interpretation) sont réalisées.  
+Ce qui permet d'avancer rapidement et de passer la phase de prototypage en quelques secondes.  
 
-Le but de ce projet est de permettre 2 choses : 
-- Tu connais le vollet métier mais tu ne sais pas comment modéliser. 
-- Tu sais modéliser mais tu veux aller plus vite. 
+Tous les modules de cet outil sont indépendants (bien qu'interconnectés) ainsi si tu veux juste séparer ton dataset en 2 jeux d'entrainement et de test puis repartir tu peux, idem si tu veux juste regarder les performances de ton modele déjà entrainé sur ton jeu de test c'est possible, ...  
 
-Si tu t'es reconnu dans ces quelques lignes ce paquet est fait pour toi !  
-Si tu es simplement curieux, essaye-donc ;)
+Le but est d'aller vite sur le prototypage pour te laisser tout le loisir et le temps pour te casser la tête dans les futures étapes.
 
 ## Prise en main 
 
@@ -27,11 +22,11 @@ uv tool add # Si tu utilises uv
 Ça y est, le plus dur est fait maintenant on peut s'amuser ! 
 
 ### Split
+
 Le premier module de ce paquet est le module **split**.  
 Il s'adresse principalement aux développeurs en data ou aux curieux.  
 Le but est simple tu as un jeu de données, tu le sépares en 2 jeux : un d'apprentissage et un de test.  
-L'idée est la suivante : tu entraines un modèle avec le jeu d'apprentissage à comprendre comment ton jeu de données fonctionne et une fois qu'il a compris tu l'évalue sur le jeu de test avec des données qu'il n'a jamais vu pour voir comment il s'en sort.  
-Il faut voir ça comme un cours, avec le jeu de test le modèle apprend ses leçons et avec celui de test il passe un contrôle pour vérifier si il a juste appris bêtement les exercices (auquel cas il aura une mauvaise note au contrôle) ou s'il les a réellement compris.  
+Les 2 jeux seront écrits dans le même répertoire que je jeu de données parent au format train_set.[ext]
 
 Comment s'utilise ce module ? 
 
@@ -55,6 +50,7 @@ goatsi split truc.csv 0.8 'âge' ['nom', 'prénom', 'âge']
 Bon par contre entre nous, prédire l'âge avec le nom et le prénom ça risque d'être compliqué ! 
 
 ### Fit 
+
 C'est le module qui te permet d'apprendre à ton modèle grâce à ton jeu d'entrainement !  
 Ici tout se passe sous le capot : 
 1. On prend ta variable cible et on essaye de l'expliquer avec les autres 
@@ -74,4 +70,38 @@ Explication :
 - trainpath (obligatoire) : ici tu dis "je veux que mon modèle apprenne de mon jeu d'entrainement et voici où il se trouve".
 - target (obligatoire) : c'est ici que tu dis "je veux prédire cette variable-là !"
 - positiveclass (pas toujours obligatoire) : ici c'est le seul moment où tu devras te creuser la tête cet argument n'est pas toujours obligatoire et pour savoir s'il l'est dans ton cas pose toi la question suivante : "est ce que ce que je veux prédire je peux y répondre par oui ou par non ?" si c'est oui alors écris la valeur de la classe positive. Si la réponse à ta question est un nombre alors ne remplis pas cet argument ! 
+
+
+### Eval 
+
+Ce module là sert à évaluer ton modèle, les métriques classiques de l'évaluation (AUC-ROC, accuracy, ...) comme ça tu sais si ton modèle est bon.  
+Tu vois aussi les distributions de probabilité, les courbes de performances ... le but ici est de voir en un clin d'oeil si le modèle semble bon pour ta tâche ou pas. 
+
+Comment évaluer ton modèle ? 
+```bash 
+goatsi eval -modelepath -testsetpath -target --positiveclass
+```
+
+Explication : 
+- modelepath (obligatoire) : ici tu dis "je veux que mon modèle apprenne de mon jeu d'entrainement et voici où il se trouve".
+- testsetpath (obligatoire) : le chemin de ton jeu de données de test.
+- target (obligatoire) : la variable que tu veux prédire 
+- positiveclass (pas toujours obligatoire) : ici c'est le seul moment où tu devras te creuser la tête cet argument n'est pas toujours obligatoire et pour savoir s'il l'est dans ton cas pose toi la question suivante : "est ce que ce que je veux prédire je peux y répondre par oui ou par non ?" si c'est oui alors écris la valeur de la classe positive. Si la réponse à ta question est un nombre alors ne remplis pas cet argument ! 
+
+
+### Explain 
+
+Ce module sert à savoir comment fonctionne ton modèle.  
+On voit à partir de quelles features ton modèle fait ses choix et comment elles affectent ses prédictions.  
+Et tu vois 2 cas (classe positive et négative tirés aléatoirement si tâche de classification sinon 2 randoms) et on regarde comment le modèle à prédit pour ces 2 cas. 
+
+Comment l'utiliser ? 
+```bash 
+goatsi explain -modelepath -testsetpath -target
+```
+
+Explication : 
+- modelepath (obligatoire) : ici tu dis "je veux que mon modèle apprenne de mon jeu d'entrainement et voici où il se trouve".
+- testsetpath (obligatoire) : le chemin de ton jeu de données de test.
+- target (obligatoire) : la variable que tu veux prédire 
 
