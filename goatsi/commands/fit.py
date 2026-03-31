@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import click
 import cloudpickle
 import joblib
 import numpy as np
@@ -19,7 +18,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 from tqdm import tqdm
 
-from goatsi.src.utils import console, detect_sep, load_defaults, show_centered
+from goatsi.src.utils import (
+    console,
+    detect_sep,
+    encode_target,
+    load_defaults,
+    show_centered,
+)
 
 
 class Modelisation:
@@ -82,20 +87,13 @@ class Modelisation:
 
     def _encode_target(self, positive_class: str | None) -> None:
         """
-        Encode la target en 0/1 si catégorielle binaire.
-        Lève une erreur si positive_class est manquante dans ce cas.
+        Encode la target en 0/1 via encode_target (utils).
 
         Parametres :
         - positive_class (str | None) : valeur de la classe positive.
         """
 
-        if self.y.dtype == object and self.task == "classification":
-            if positive_class is None:
-                raise click.UsageError(
-                    f"Categorical target detected ({self.y.unique().tolist()}) "
-                    f"Specify the --positive-class (ex: '{self.y.unique()[0]}')."
-                )
-            self.y = self.y.map(lambda v: 1 if v == positive_class else 0)
+        self.y = encode_target(self.y, positive_class)
 
     def _transtype(self, df: pd.DataFrame) -> pd.DataFrame:
         """

@@ -4,6 +4,8 @@ import json
 import shutil
 from pathlib import Path
 
+import click
+import pandas as pd
 import plotext as plt
 from rich.console import Console
 
@@ -35,6 +37,31 @@ def show_centered(plot_width: int = 70) -> None:
     for line in plt.build().split("\n"):
         print(padding + line)
     plt.clf()
+
+
+def encode_target(y: pd.Series, positive_class: str | None) -> pd.Series:
+    """
+    Encode la target en 0/1 si elle est de type object (catégorielle binaire).
+    Si la target est déjà numérique, retourne y sans modification.
+
+    Parametres :
+    - y (pd.Series) : colonne cible.
+    - positive_class (str | None) : valeur de la classe positive.
+
+    Output :
+    - (pd.Series) : target encodée.
+    """
+
+    if y.dtype != object:
+        return y
+
+    if positive_class is None:
+        raise click.UsageError(
+            f"Categorical target detected ({y.unique().tolist()}). "
+            f"Specify --positive-class (ex: '{y.unique()[0]}')."
+        )
+
+    return y.map(lambda v: 1 if v == positive_class else 0)
 
 
 def detect_sep(filepath: Path) -> str:
