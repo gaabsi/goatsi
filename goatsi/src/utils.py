@@ -11,6 +11,7 @@ from rich.console import Console
 
 console = Console()
 
+
 def detect_sep(filepath: Path) -> str:
     """
     Détecte le séparateur d'un fichier CSV via csv.Sniffer.
@@ -29,7 +30,7 @@ def detect_sep(filepath: Path) -> str:
         raise ValueError(
             f"Impossible de détecter le séparateur de {filepath.name}. Vérifier le fichier."
         )
-    
+
 
 def load_defaults(model: str = "xgboost") -> dict:
     """
@@ -114,5 +115,5 @@ def load_dataset(path: Path) -> pd.DataFrame:
         "parquet": pd.read_parquet,
         "xlsx": pd.read_excel,
     }
-    
+
     return readers[ext](path)
