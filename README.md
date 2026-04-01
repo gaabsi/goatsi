@@ -15,8 +15,8 @@ Le but est d'aller vite sur le prototypage pour te laisser tout le loisir et le 
 La premiere étape est de récuperer ce paquet : 
 
 ```bash
-pip install # Si tu utilises pip
-uv tool add # Si tu utilises uv
+pip install goatsi # Si tu utilises pip
+uv tool install goatsi # Si tu utilises uv
 ```
 
 Ça y est, le plus dur est fait maintenant on peut s'amuser ! 
