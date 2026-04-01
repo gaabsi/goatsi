@@ -163,14 +163,14 @@ class Modelisation:
             shuffle=True,
             random_state=self.defaults["seed"],
         )
-        scoring = {metric: metric for metric in self.defaults["log"]}
+        scoring = {metric: metric for metric in self.defaults["log"][self.task]}
         search = RandomizedSearchCV(
             self._init_pipeline(),
             self._build_param_grid(),
             n_iter=self.defaults["n_iter"],
             cv=cv,
             scoring=scoring,
-            refit=self.defaults["optimize_on"],
+            refit=self.defaults["optimize_on"][self.task],
             random_state=self.defaults["seed"],
             n_jobs=-1,
             error_score="raise",
@@ -207,7 +207,7 @@ class Modelisation:
         Affiche la learning curve du meilleur modèle via plotext.
         """
 
-        metric = self.defaults["optimize_on"]
+        metric = self.defaults["optimize_on"][self.task]
         train_sizes_abs, train_scores, val_scores = learning_curve(
             model,
             self.x,
@@ -281,9 +281,10 @@ class Modelisation:
         table = Table()
         table.add_column("Métrique", style="cyan", justify="center")
         table.add_column("Score moyen (CV)", style="green", justify="center")
-        for metric in self.defaults["log"]:
+        for metric in self.defaults["log"][self.task]:
             mean_score = search.cv_results_[f"mean_test_{metric}"][search.best_index_]
-            table.add_row(metric, f"{mean_score:.4f}")
+            label = self.defaults["display"][metric]
+            table.add_row(label, f"{abs(mean_score):.4f}")
         console.print(table, justify="center")
 
         self._learning_curve(best_model)

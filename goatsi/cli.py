@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 
 from goatsi.commands.eval import Evaluation
+from goatsi.commands.explain import Explanation
 from goatsi.commands.fit import Modelisation
 from goatsi.commands.split import Ingestion
 
@@ -86,6 +87,29 @@ def eval(model_path, test_path, target, positive_class):
     """
 
     Evaluation(
+        model_path=model_path,
+        test_path=test_path,
+        target=target,
+        positive_class=positive_class,
+    ).run()
+
+
+@cli.command()
+@click.argument("model_path", type=click.Path(exists=True, path_type=Path))
+@click.argument("test_path", type=click.Path(exists=True, path_type=Path))
+@click.option("-target", "-t", required=True, help="Target column.")
+@click.option(
+    "-positive-class",
+    "-p",
+    default=None,
+    help="Positive class value (ex: 'Yes'). Required if target is categorical.",
+)
+def explain(model_path, test_path, target, positive_class):
+    """
+    Explique les prédictions d'un modèle via SHAP.
+    """
+
+    Explanation(
         model_path=model_path,
         test_path=test_path,
         target=target,

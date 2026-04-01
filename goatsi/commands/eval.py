@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import cloudpickle
-import pandas as pd
 import plotext as plt
 from rich.table import Table
 from sklearn.metrics import (
@@ -16,7 +14,13 @@ from sklearn.metrics import (
     roc_curve,
 )
 
-from goatsi.src.utils import console, detect_sep, encode_target, show_centered
+from goatsi.src.utils import (
+    console,
+    encode_target,
+    load_dataset,
+    load_model,
+    show_centered,
+)
 
 
 class Evaluation:
@@ -37,9 +41,9 @@ class Evaluation:
         target: str,
         positive_class: str | None = None,
     ):
-        self.pipeline = self._load_model(model_path)
+        self.pipeline = load_model(model_path)
 
-        df = self._load(test_path)
+        df = load_dataset(test_path)
         y = df[target]
         self.y_test = encode_target(y, positive_class)
         self.x_test = df.drop(columns=target)
@@ -47,40 +51,6 @@ class Evaluation:
         self.y_pred = None
         self.y_pred_prob = None
         self.metrics = None
-
-    def _load_model(self, model_path: Path):
-        """
-        Charge le modèle depuis un fichier .pkl avec cloudpickle.
-
-        Parametres :
-        - model_path (Path) : chemin vers le fichier .pkl.
-
-        Output :
-        - pipeline chargé.
-        """
-
-        with open(model_path, "rb") as f:
-            return cloudpickle.load(f)
-
-    def _load(self, test_path: Path) -> pd.DataFrame:
-        """
-        Charge le test set depuis le fichier source.
-
-        Parametres :
-        - test_path (Path) : chemin vers le fichier.
-
-        Output :
-        - (pd.DataFrame) : test set chargé.
-        """
-
-        ext = test_path.suffix.lstrip(".")
-        readers = {
-            "csv": lambda p: pd.read_csv(p, sep=detect_sep(p)),
-            "parquet": pd.read_parquet,
-            "xlsx": pd.read_excel,
-        }
-
-        return readers[ext](test_path)
 
     def _predict(self) -> None:
         """

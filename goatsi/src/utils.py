@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 import click
+import cloudpickle
 import pandas as pd
 import plotext as plt
 from rich.console import Console
@@ -62,6 +63,39 @@ def encode_target(y: pd.Series, positive_class: str | None) -> pd.Series:
         )
 
     return y.map(lambda v: 1 if v == positive_class else 0)
+
+
+def load_model(model_path: Path):
+    """
+    Charge un modèle depuis un fichier .pkl avec cloudpickle.
+
+    Parametres :
+    - model_path (Path) : chemin vers le fichier .pkl.
+
+    Output :
+    - pipeline chargé.
+    """
+    with open(model_path, "rb") as f:
+        return cloudpickle.load(f)
+
+
+def load_dataset(path: Path) -> pd.DataFrame:
+    """
+    Charge un dataset depuis un fichier csv, parquet ou xlsx.
+
+    Parametres :
+    - path (Path) : chemin vers le fichier.
+
+    Output :
+    - (pd.DataFrame) : dataset chargé.
+    """
+    ext = path.suffix.lstrip(".")
+    readers = {
+        "csv": lambda p: pd.read_csv(p, sep=detect_sep(p)),
+        "parquet": pd.read_parquet,
+        "xlsx": pd.read_excel,
+    }
+    return readers[ext](path)
 
 
 def detect_sep(filepath: Path) -> str:

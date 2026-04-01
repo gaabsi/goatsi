@@ -93,15 +93,16 @@ Explication :
 
 Ce module sert à savoir comment fonctionne ton modèle.  
 On voit à partir de quelles features ton modèle fait ses choix et comment elles affectent ses prédictions.  
-Et tu vois 2 cas (classe positive et négative tirés aléatoirement si tâche de classification sinon 2 randoms) et on regarde comment le modèle à prédit pour ces 2 cas. 
+Et tu vois 2 cas (classe positive et négative tirés aléatoirement si tâche de classification, top/bottom 25% des prédictions si régression) et on regarde comment le modèle a prédit pour ces 2 cas.
 
-Comment l'utiliser ? 
-```bash 
-goatsi explain -modelepath -testsetpath -target
+Comment l'utiliser ?
+```bash
+goatsi explain <model_path> <test_path> -target <col> [-p <positive_class>]
 ```
 
-Explication : 
-- modelepath (obligatoire) : ici tu dis "je veux que mon modèle apprenne de mon jeu d'entrainement et voici où il se trouve".
-- testsetpath (obligatoire) : le chemin de ton jeu de données de test.
-- target (obligatoire) : la variable que tu veux prédire 
+Explication :
+- model_path (obligatoire) : chemin vers le modèle entraîné (.pkl).
+- test_path (obligatoire) : le chemin de ton jeu de données de test.
+- target (obligatoire) : la variable que tu veux prédire.
+- positive_class (optionnel) : valeur de la classe positive si target catégorielle.
 
