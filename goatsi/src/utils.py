@@ -1,5 +1,4 @@
 import csv
-import importlib.resources
 import json
 import shutil
 from pathlib import Path
@@ -42,8 +41,9 @@ def load_defaults(model: str = "xgboost") -> dict:
     Output :
     - (dict) : paramètres par défaut du modèle.
     """
-    with importlib.resources.open_text("goatsi.src", "defaults.json") as f:
-        return json.load(f)[model]
+    with open(Path(__file__).parent / "defaults.json") as f:
+        data = json.load(f)
+    return {**data["tasks"], **data["models"][model]}
 
 
 def show_centered(plot_width: int = 70) -> None:
