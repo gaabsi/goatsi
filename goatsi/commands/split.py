@@ -79,6 +79,15 @@ class Ingestion:
 
         sep = detect_sep(self.filepath) if self.extension == "csv" else ","
         df = Ingestion._load(self.filepath, sep, usecols=self.usecols)
+
+        if self.target is None:
+            train_set, test_set = train_test_split(
+                df,
+                train_size=self.train_size,
+                random_state=self.seed,
+            )
+            return train_set, test_set
+
         x = df.drop(columns=[self.target])
         y = df[self.target]
 
