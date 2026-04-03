@@ -73,7 +73,7 @@ def encode_target(y: pd.Series, positive_class: str | None) -> pd.Series:
     - (pd.Series) : target encodée.
     """
 
-    if y.dtype != object:
+    if pd.api.types.is_numeric_dtype(y):
         return y
 
     if positive_class is None:
