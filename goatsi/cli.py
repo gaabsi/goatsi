@@ -3,7 +3,7 @@ from pathlib import Path
 
 import click
 
-from goatsi.commands.eval import Evaluation
+from goatsi.commands.eval import build_evaluation
 from goatsi.commands.explain import Explanation
 from goatsi.commands.fit import Modelisation
 from goatsi.commands.split import Ingestion
@@ -86,7 +86,7 @@ def eval(model_path, test_path, target, positive_class):
     Évalue un modèle sur le test set.
     """
 
-    Evaluation(
+    build_evaluation(
         model_path=model_path,
         test_path=test_path,
         target=target,

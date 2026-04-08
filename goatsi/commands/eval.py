@@ -7,11 +7,14 @@ from sklearn.metrics import (
     average_precision_score,
     confusion_matrix,
     f1_score,
+    mean_absolute_error,
     precision_recall_curve,
     precision_score,
+    r2_score,
     recall_score,
     roc_auc_score,
     roc_curve,
+    root_mean_squared_error,
 )
 
 from goatsi.src.utils import (
@@ -25,7 +28,44 @@ from goatsi.src.utils import (
 
 class Evaluation:
     """
-    Évalue les performances d'un modèle de classification binaire sur un test set.
+    Classe de base pour l'évaluation d'un modèle ML.
+
+    Parametres :
+    - model_path (Path) : chemin vers le fichier .pkl du modèle.
+    - test_path (Path) : chemin vers le fichier test set.
+    - target (str) : nom de la colonne cible.
+    """
+
+    def __init__(
+        self,
+        model_path: Path,
+        test_path: Path,
+        target: str,
+    ):
+        self.pipeline = load_model(model_path)
+
+        df = load_dataset(test_path)
+        self.y_test = df[target]
+        self.x_test = df.drop(columns=target)
+
+        self.y_pred = None
+        self.metrics = None
+
+    def _show_metrics(self) -> None:
+        """
+        Affiche les métriques sous forme de table rich.
+        """
+
+        table = Table(title="Evaluation metrics")
+        for key in self.metrics:
+            table.add_column(key, style="cyan", justify="center")
+        table.add_row(*[f"{v:.3f}" for v in self.metrics.values()])
+        console.print(table, justify="center")
+
+
+class EvaluationClassification(Evaluation):
+    """
+    Évalue les performances d'un modèle de classification binaire.
 
     Parametres :
     - model_path (Path) : chemin vers le fichier .pkl du modèle.
@@ -41,16 +81,9 @@ class Evaluation:
         target: str,
         positive_class: str | None = None,
     ):
-        self.pipeline = load_model(model_path)
-
-        df = load_dataset(test_path)
-        y = df[target]
-        self.y_test = encode_target(y, positive_class)
-        self.x_test = df.drop(columns=target)
-
-        self.y_pred = None
+        super().__init__(model_path, test_path, target)
+        self.y_test = encode_target(self.y_test, positive_class)
         self.y_pred_prob = None
-        self.metrics = None
 
     def _predict(self) -> None:
         """
@@ -62,7 +95,7 @@ class Evaluation:
 
     def _compute_metrics(self) -> None:
         """
-        Calcule les métriques d'évaluation sur le test set.
+        Calcule les métriques de classification sur le test set.
         """
 
         self.metrics = {
@@ -74,20 +107,9 @@ class Evaluation:
             "Avg Precision": average_precision_score(self.y_test, self.y_pred_prob),
         }
 
-    def _show_metrics(self) -> None:
-        """
-        Affiche les métriques sous forme de table rich.
-        """
-
-        table = Table(title="Evaluation metrics")
-        for key in self.metrics:
-            table.add_column(key, style="cyan", justify="center")
-        table.add_row(*[f"{v:.3f}" for v in self.metrics.values()])
-        console.print(table, justify="center")
-
     def _show_confusion(self) -> None:
         """
-        Affiche la matrice de confusion sous forme de table rich.
+        Affiche la matrice de confusion.
         """
 
         cm = confusion_matrix(self.y_test, self.y_pred)
@@ -103,7 +125,7 @@ class Evaluation:
 
     def _show_roc(self) -> None:
         """
-        Affiche la courbe ROC dans le terminal via plotext.
+        Affiche la courbe ROC.
         """
 
         fpr, tpr, _ = roc_curve(self.y_test, self.y_pred_prob)
@@ -124,7 +146,7 @@ class Evaluation:
 
     def _show_pr(self) -> None:
         """
-        Affiche la courbe Précision-Rappel dans le terminal via plotext.
+        Affiche la courbe Précision-Rappel.
         """
 
         precision, recall, _ = precision_recall_curve(self.y_test, self.y_pred_prob)
@@ -171,3 +193,101 @@ class Evaluation:
         self._show_roc()
         self._show_pr()
         self._show_proba()
+
+
+class EvaluationRegression(Evaluation):
+    """
+    Évalue les performances d'un modèle de régression.
+
+    Parametres :
+    - model_path (Path) : chemin vers le fichier .pkl du modèle.
+    - test_path (Path) : chemin vers le fichier test set.
+    - target (str) : nom de la colonne cible.
+    """
+
+    def _predict(self) -> None:
+        """
+        Calcule les prédictions du modèle de régression.
+        """
+
+        self.y_pred = self.pipeline.predict(self.x_test)
+
+    def _compute_metrics(self) -> None:
+        """
+        Calcule les métriques de régression sur le test set.
+        """
+
+        self.metrics = {
+            "R²": r2_score(self.y_test, self.y_pred),
+            "RMSE": root_mean_squared_error(self.y_test, self.y_pred),
+            "MAE": mean_absolute_error(self.y_test, self.y_pred),
+        }
+
+    def _show_residuals(self) -> None:
+        """
+        Affiche la distribution des résidus (actual - predicted).
+        """
+
+        residuals = (self.y_test - self.y_pred).tolist()
+        plt.clf()
+        plt.theme("clear")
+        plt.plotsize(70, 20)
+        plt.hist(residuals, bins=50, color="blue+")
+        plt.title("Residuals distribution")
+        plt.xlabel("Residual (actual - predicted)")
+        show_centered(plot_width=70)
+
+    def _show_pred_vs_actual(self) -> None:
+        """
+        Affiche le scatter predicted vs actual avec la droite idéale.
+        """
+
+        y_actual = self.y_test.tolist()
+        y_predicted = self.y_pred.tolist()
+        min_val = min(min(y_actual), min(y_predicted))
+        max_val = max(max(y_actual), max(y_predicted))
+
+        plt.clf()
+        plt.theme("clear")
+        plt.plotsize(70, 20)
+        plt.scatter(y_actual, y_predicted, color="blue+", label="Predictions", marker="braille")
+        plt.plot([min_val, max_val], [min_val, max_val], color="red", label="Ideal", marker="braille")
+        plt.title("Predicted vs Actual")
+        plt.xlabel("Actual")
+        show_centered(plot_width=70)
+
+    def run(self) -> None:
+        """
+        Orchestration : prédictions, métriques, visualisations.
+        """
+
+        self._predict()
+        self._compute_metrics()
+        self._show_metrics()
+        self._show_residuals()
+        self._show_pred_vs_actual()
+
+
+def build_evaluation(
+    model_path: Path,
+    test_path: Path,
+    target: str,
+    positive_class: str | None = None,
+) -> Evaluation:
+    """
+    Instancie la bonne classe d'évaluation selon le type de modèle chargé.
+
+    Parametres :
+    - model_path (Path) : chemin vers le fichier .pkl du modèle.
+    - test_path (Path) : chemin vers le fichier test set.
+    - target (str) : nom de la colonne cible.
+    - positive_class (str | None) : valeur de la classe positive si target catégorielle.
+
+    Output :
+    - (Evaluation) : instance de EvaluationClassification ou EvaluationRegression.
+    """
+    
+    pipeline = load_model(model_path)
+    if hasattr(pipeline, "predict_proba"):
+        return EvaluationClassification(model_path, test_path, target, positive_class)
+    return EvaluationRegression(model_path, test_path, target)
