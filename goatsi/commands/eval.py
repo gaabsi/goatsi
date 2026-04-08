@@ -250,8 +250,16 @@ class EvaluationRegression(Evaluation):
         plt.clf()
         plt.theme("clear")
         plt.plotsize(70, 20)
-        plt.scatter(y_actual, y_predicted, color="blue+", label="Predictions", marker="braille")
-        plt.plot([min_val, max_val], [min_val, max_val], color="red", label="Ideal", marker="braille")
+        plt.scatter(
+            y_actual, y_predicted, color="blue+", label="Predictions", marker="braille"
+        )
+        plt.plot(
+            [min_val, max_val],
+            [min_val, max_val],
+            color="red",
+            label="Ideal",
+            marker="braille",
+        )
         plt.title("Predicted vs Actual")
         plt.xlabel("Actual")
         show_centered(plot_width=70)
@@ -286,7 +294,7 @@ def build_evaluation(
     Output :
     - (Evaluation) : instance de EvaluationClassification ou EvaluationRegression.
     """
-    
+
     pipeline = load_model(model_path)
     if hasattr(pipeline, "predict_proba"):
         return EvaluationClassification(model_path, test_path, target, positive_class)
